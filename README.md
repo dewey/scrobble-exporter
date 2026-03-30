@@ -59,7 +59,13 @@ docker run \
 
 ```sh
 go build -o scrobble-exporter .
-LASTFM_API_KEY=your_key LASTFM_USERNAMES=alice LISTENBRAINZ_USERNAMES=alice ./scrobble-exporter
+```
+
+```sh
+LASTFM_API_KEY=your_key \
+LASTFM_USERNAMES=alice \
+LISTENBRAINZ_USERNAMES=alice \
+./scrobble-exporter
 ```
 
 ## Endpoints
