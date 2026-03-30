@@ -48,7 +48,7 @@ func main() {
 			mux.Handle(metricsPath, promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 			mux.HandleFunc("/up", func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
-				fmt.Fprint(w, "OK")
+				_, _ = fmt.Fprint(w, "OK")
 			})
 			mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 				data := struct {
@@ -72,7 +72,9 @@ func main() {
 	rootCmd.Flags().String("listen-address", ":9101", "Address to expose metrics on (env: LISTEN_ADDRESS)")
 	rootCmd.Flags().String("metrics-path", "/metrics", "Path to expose metrics on (env: METRICS_PATH)")
 
-	viper.BindPFlags(rootCmd.Flags())
+	if err := viper.BindPFlags(rootCmd.Flags()); err != nil {
+		log.Fatalf("failed to bind flags: %v", err)
+	}
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv()
 

@@ -44,7 +44,7 @@ func (s *LastfmScraper) Scrape(ctx context.Context) (PlayCounts, error) {
 	if err != nil {
 		return PlayCounts{}, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return PlayCounts{}, &HTTPError{
