@@ -1,0 +1,10 @@
+services:
+  scrobble-exporter:
+    image: ghcr.io/dewey/scrobble-exporter:latest
+    ports:
+      - "9101:9101"
+    environment:
+      LASTFM_API_KEY: ${LASTFM_API_KEY}
+      LASTFM_USERNAMES: ${LASTFM_USERNAMES}
+      LISTENBRAINZ_USERNAMES: ${LISTENBRAINZ_USERNAMES}
+    restart: unless-stopped
