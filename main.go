@@ -12,6 +12,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var indexTmpl = template.Must(template.New("index").Parse(`<!DOCTYPE html>
@@ -23,17 +24,17 @@ var indexTmpl = template.Must(template.New("index").Parse(`<!DOCTYPE html>
 {{range .Scrapers}}<li>{{.ServiceName}} / {{.Username}}</li>
 {{end}}
 </ul>
-<p><a href="{{.MetricsPath}}">&#8594; {{.MetricsPath}}</a></p>
+<p><a href="{{.MetricsPath}}">{{.MetricsPath}}</a></p>
 </body></html>`))
 
 func main() {
-	var listenAddress string
-	var metricsPath string
-
 	rootCmd := &cobra.Command{
 		Use:   "scrobble-exporter",
 		Short: "Prometheus exporter for music scrobble counts",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			listenAddress := viper.GetString("listen-address")
+			metricsPath := viper.GetString("metrics-path")
+
 			scrapers := buildScrapers()
 			if len(scrapers) == 0 {
 				log.Println("warning: no scrapers configured, exporter will emit no metrics")
@@ -68,8 +69,12 @@ func main() {
 		},
 	}
 
-	rootCmd.Flags().StringVar(&listenAddress, "listen-address", ":9101", "Address to expose metrics on")
-	rootCmd.Flags().StringVar(&metricsPath, "metrics-path", "/metrics", "Path to expose metrics on")
+	rootCmd.Flags().String("listen-address", ":9101", "Address to expose metrics on (env: LISTEN_ADDRESS)")
+	rootCmd.Flags().String("metrics-path", "/metrics", "Path to expose metrics on (env: METRICS_PATH)")
+
+	viper.BindPFlags(rootCmd.Flags())
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	viper.AutomaticEnv()
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

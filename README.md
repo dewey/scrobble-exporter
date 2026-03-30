@@ -39,10 +39,10 @@ Scrapers are skipped (with a warning) if their env vars are missing — no crash
 
 ### Flags
 
-| Flag | Default | Description |
-|---|---|---|
-| `--listen-address` | `:9101` | Address to expose metrics on |
-| `--metrics-path` | `/metrics` | Path to expose metrics on |
+| Flag | Env var | Default | Description |
+|---|---|---|---|
+| `--listen-address` | `LISTEN_ADDRESS` | `:9101` | Address to expose metrics on |
+| `--metrics-path` | `METRICS_PATH` | `/metrics` | Path to expose metrics on |
 
 ## Running with Docker
 
