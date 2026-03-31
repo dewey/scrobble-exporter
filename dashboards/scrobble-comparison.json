@@ -1,0 +1,333 @@
+{
+  "apiVersion": "dashboard.grafana.app/v0alpha1",
+  "kind": "Dashboard",
+  "metadata": {
+    "annotations": {},
+    "labels": {},
+    "name": "scrobble-comparison",
+    "namespace": "default"
+  },
+  "spec": {
+    "title": "Scrobble Comparison",
+    "schemaVersion": 42,
+    "timezone": "browser",
+    "time": { "from": "now-30d", "to": "now" },
+    "timepicker": {},
+    "refresh": "1h",
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "links": [],
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "templating": {
+      "list": [
+        {
+          "name": "datasource",
+          "type": "datasource",
+          "query": "prometheus",
+          "current": { "text": "Prometheus", "value": "dfcrgvvgreigwc" },
+          "label": "Datasource",
+          "refresh": 1,
+          "hide": 0
+        },
+        {
+          "name": "lastfm_username",
+          "type": "query",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "definition": "label_values(scrobble_plays_total{service=\"lastfm\"}, username)",
+          "query": {
+            "query": "label_values(scrobble_plays_total{service=\"lastfm\"}, username)",
+            "refId": "StandardVariableQuery"
+          },
+          "label": "Last.fm Username",
+          "refresh": 2,
+          "sort": 1,
+          "hide": 0,
+          "multi": false,
+          "includeAll": false
+        },
+        {
+          "name": "listenbrainz_username",
+          "type": "query",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "definition": "label_values(scrobble_plays_total{service=\"listenbrainz\"}, username)",
+          "query": {
+            "query": "label_values(scrobble_plays_total{service=\"listenbrainz\"}, username)",
+            "refId": "StandardVariableQuery"
+          },
+          "label": "ListenBrainz Username",
+          "refresh": 2,
+          "sort": 1,
+          "hide": 0,
+          "multi": false,
+          "includeAll": false
+        }
+      ]
+    },
+    "panels": [
+      {
+        "id": 14,
+        "type": "timeseries",
+        "title": "Scrobble Count Over Time",
+        "datasource": { "type": "prometheus", "uid": "${datasource}" },
+        "gridPos": { "h": 12, "w": 24, "x": 0, "y": 0 },
+        "targets": [
+          {
+            "expr": "scrobble_plays_total{username=\"$lastfm_username\", service=\"lastfm\"}",
+            "legendFormat": "Last.fm ({{username}})",
+            "refId": "A"
+          },
+          {
+            "expr": "scrobble_plays_total{username=\"$listenbrainz_username\", service=\"listenbrainz\"}",
+            "legendFormat": "ListenBrainz ({{username}})",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "palette-classic" },
+            "custom": {
+              "axisBorderShow": false,
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 10,
+              "gradientMode": "none",
+              "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 2,
+              "pointSize": 5,
+              "scaleDistribution": { "type": "linear" },
+              "showPoints": "auto",
+              "spanNulls": true,
+              "stacking": { "group": "A", "mode": "none" },
+              "thresholdsStyle": { "mode": "off" }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [{ "color": "green", "value": null }]
+            },
+            "unit": "none",
+            "decimals": 0
+          },
+          "overrides": [
+            {
+              "matcher": { "id": "byFrameRefID", "options": "A" },
+              "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }]
+            },
+            {
+              "matcher": { "id": "byFrameRefID", "options": "B" },
+              "properties": [{ "id": "color", "value": { "fixedColor": "purple", "mode": "fixed" } }]
+            }
+          ]
+        },
+        "options": {
+          "legend": {
+            "calcs": ["lastNotNull", "min", "max"],
+            "displayMode": "table",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": { "mode": "multi", "sort": "none" }
+        }
+      },
+      {
+        "id": 1,
+        "type": "row",
+        "title": "Total Scrobbles",
+        "collapsed": false,
+        "gridPos": { "h": 1, "w": 24, "x": 0, "y": 12 }
+      },
+      {
+        "id": 2,
+        "type": "stat",
+        "title": "Last.fm Total",
+        "datasource": { "type": "prometheus", "uid": "${datasource}" },
+        "gridPos": { "h": 4, "w": 8, "x": 0, "y": 13 },
+        "targets": [
+          {
+            "expr": "scrobble_plays_total{username=\"$lastfm_username\", service=\"lastfm\"}",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "fixed", "fixedColor": "blue" },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [{ "color": "blue", "value": null }]
+            },
+            "unit": "none",
+            "decimals": 0
+          },
+          "overrides": []
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "none",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+          "textMode": "auto",
+          "wideLayout": true
+        }
+      },
+      {
+        "id": 3,
+        "type": "stat",
+        "title": "ListenBrainz Total",
+        "datasource": { "type": "prometheus", "uid": "${datasource}" },
+        "gridPos": { "h": 4, "w": 8, "x": 8, "y": 13 },
+        "targets": [
+          {
+            "expr": "scrobble_plays_total{username=\"$listenbrainz_username\", service=\"listenbrainz\"}",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "fixed", "fixedColor": "purple" },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [{ "color": "purple", "value": null }]
+            },
+            "unit": "none",
+            "decimals": 0
+          },
+          "overrides": []
+        },
+        "options": {
+          "colorMode": "value",
+          "graphMode": "none",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+          "textMode": "auto",
+          "wideLayout": true
+        }
+      },
+      {
+        "id": 4,
+        "type": "stat",
+        "title": "Difference (Total)",
+        "datasource": { "type": "prometheus", "uid": "${datasource}" },
+        "gridPos": { "h": 4, "w": 8, "x": 16, "y": 13 },
+        "targets": [
+          {
+            "expr": "abs(scrobble_plays_total{username=\"$lastfm_username\", service=\"lastfm\"} - on() scrobble_plays_total{username=\"$listenbrainz_username\", service=\"listenbrainz\"})",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 20 },
+                { "color": "red", "value": 50 }
+              ]
+            },
+            "unit": "none",
+            "decimals": 0
+          },
+          "overrides": []
+        },
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+          "textMode": "auto",
+          "wideLayout": true
+        }
+      },
+      {
+        "id": 15,
+        "type": "timeseries",
+        "title": "Divergence Over Time (Last.fm − ListenBrainz)",
+        "datasource": { "type": "prometheus", "uid": "${datasource}" },
+        "gridPos": { "h": 8, "w": 24, "x": 0, "y": 17 },
+        "targets": [
+          {
+            "expr": "scrobble_plays_total{username=\"$lastfm_username\", service=\"lastfm\"} - on() scrobble_plays_total{username=\"$listenbrainz_username\", service=\"listenbrainz\"}",
+            "legendFormat": "Divergence",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "custom": {
+              "axisBorderShow": false,
+              "axisCenteredZero": true,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "drawStyle": "line",
+              "fillOpacity": 20,
+              "gradientMode": "scheme",
+              "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 2,
+              "pointSize": 5,
+              "scaleDistribution": { "type": "linear" },
+              "showPoints": "auto",
+              "spanNulls": true,
+              "stacking": { "group": "A", "mode": "none" },
+              "thresholdsStyle": { "mode": "area" }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 20 },
+                { "color": "red", "value": 50 }
+              ]
+            },
+            "unit": "none",
+            "decimals": 0
+          },
+          "overrides": []
+        },
+        "options": {
+          "legend": {
+            "calcs": ["lastNotNull", "min", "max"],
+            "displayMode": "table",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": { "mode": "single", "sort": "none" }
+        }
+      }
+    ]
+  }
+}

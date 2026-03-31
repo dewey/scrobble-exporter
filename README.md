@@ -76,6 +76,22 @@ LISTENBRAINZ_USERNAMES=alice \
 | `/up` | Returns `200 OK` if the process is alive (for liveness probes) |
 | `/` | Lists active scrapers and links to `/metrics` |
 
+## Grafana dashboard
+
+A pre-built dashboard is included at [`dashboards/scrobble-comparison.json`](dashboards/scrobble-comparison.json).
+
+![Scrobble Comparison dashboard](dashboards/scrobble-comparison.png)
+
+It provides:
+
+- **Scrobble Count Over Time** — time series comparing Last.fm and ListenBrainz play counts
+- **Total Scrobbles** — current totals for each service and the absolute difference (green/yellow/red threshold colouring)
+- **Divergence Over Time** — signed difference (Last.fm − ListenBrainz) over the selected time range
+
+Variables are auto-populated from Prometheus label values, so usernames are selectable from dropdowns without editing the dashboard.
+
+Import via Grafana UI → Dashboards → Import → Upload JSON file, or provision it via your Grafana configuration.
+
 ## Adding a new service
 
 1. Create `collector/<service>.go`
