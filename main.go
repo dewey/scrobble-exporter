@@ -111,5 +111,18 @@ func buildScrapers() []collector.Scraper {
 		}
 	}
 
+	librefmAPIKey := os.Getenv("LIBREFM_API_KEY")
+	librefmUsers := os.Getenv("LIBREFM_USERNAMES")
+	if librefmAPIKey == "" || librefmUsers == "" {
+		log.Println("warning: LIBREFM_API_KEY or LIBREFM_USERNAMES not set, skipping Libre.fm")
+	} else {
+		for _, u := range strings.Split(librefmUsers, ",") {
+			u = strings.TrimSpace(u)
+			if u != "" {
+				scrapers = append(scrapers, collector.NewLibrefmScraper(librefmAPIKey, u))
+			}
+		}
+	}
+
 	return scrapers
 }

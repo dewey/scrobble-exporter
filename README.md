@@ -34,6 +34,8 @@ abs(
 | `LASTFM_API_KEY` | Yes (for Last.fm) | App-level API key from last.fm/api |
 | `LASTFM_USERNAMES` | Yes (for Last.fm) | Comma-separated usernames to monitor |
 | `LISTENBRAINZ_USERNAMES` | Yes (for Listenbrainz) | Comma-separated usernames to monitor |
+| `LIBREFM_API_KEY` | Yes (for Libre.fm) | App-level API key from libre.fm/api |
+| `LIBREFM_USERNAMES` | Yes (for Libre.fm) | Comma-separated usernames to monitor |
 
 Scrapers are skipped (with a warning) if their env vars are missing — no crash.
 
@@ -51,6 +53,8 @@ docker run \
   -e LASTFM_API_KEY=your_key \
   -e LASTFM_USERNAMES=alice,bob \
   -e LISTENBRAINZ_USERNAMES=alice,bob \
+  -e LIBREFM_API_KEY=your_key \
+  -e LIBREFM_USERNAMES=alice,bob \
   -p 9101:9101 \
   ghcr.io/dewey/scrobble-exporter:latest
 ```
@@ -65,6 +69,8 @@ go build -o scrobble-exporter .
 LASTFM_API_KEY=your_key \
 LASTFM_USERNAMES=alice \
 LISTENBRAINZ_USERNAMES=alice \
+LIBREFM_API_KEY=your_key \
+LIBREFM_USERNAMES=alice \
 ./scrobble-exporter
 ```
 

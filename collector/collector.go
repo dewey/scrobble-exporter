@@ -50,7 +50,7 @@ func NewScrobbleCollector(scrapers []Scraper) *ScrobbleCollector {
 		),
 		scrapeError: prometheus.NewDesc(
 			"scrobble_scrape_errors_total",
-			"1 if the last scrape failed, 0 on success. Label status_code carries the HTTP status code or '0' for non-HTTP errors.",
+			"1 if the last scrape failed, 0 on success. Label status_code carries the HTTP status code; '0' means a non-HTTP error (network failure, parse error, etc.).",
 			[]string{"service", "username", "status_code"},
 			nil,
 		),
@@ -75,7 +75,7 @@ func (c *ScrobbleCollector) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 		ch <- prometheus.MustNewConstMetric(c.playsTotal, prometheus.GaugeValue, float64(counts.AllTime), s.ServiceName(), s.Username())
-		ch <- prometheus.MustNewConstMetric(c.scrapeError, prometheus.GaugeValue, 0, s.ServiceName(), s.Username(), "0")
+		ch <- prometheus.MustNewConstMetric(c.scrapeError, prometheus.GaugeValue, 0, s.ServiceName(), s.Username(), "200")
 	}
 }
 
