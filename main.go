@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/dewey/scrobble-exporter/collector"
 	"github.com/prometheus/client_golang/prometheus"
@@ -40,7 +44,15 @@ func main() {
 				log.Println("warning: no scrapers configured, exporter will emit no metrics")
 			}
 
-			col := collector.NewScrobbleCollector(scrapers)
+			interval := viper.GetDuration("scrape-interval")
+
+			ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+			defer stop()
+
+			col := collector.NewScrobbleCollector(scrapers, interval)
+			log.Printf("starting background scraper (interval: %s, initial blocking fetch)", interval)
+			col.Start(ctx)
+
 			reg := prometheus.NewRegistry()
 			reg.MustRegister(col)
 
@@ -65,12 +77,21 @@ func main() {
 			})
 
 			log.Printf("listening on %s, metrics at %s", listenAddress, metricsPath)
-			return http.ListenAndServe(listenAddress, mux)
+			srv := &http.Server{Addr: listenAddress, Handler: mux}
+			go func() {
+				<-ctx.Done()
+				_ = srv.Shutdown(context.Background())
+			}()
+			if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				return err
+			}
+			return nil
 		},
 	}
 
 	rootCmd.Flags().String("listen-address", ":9101", "Address to expose metrics on (env: LISTEN_ADDRESS)")
 	rootCmd.Flags().String("metrics-path", "/metrics", "Path to expose metrics on (env: METRICS_PATH)")
+	rootCmd.Flags().Duration("scrape-interval", 5*time.Minute, "How often to refresh scrobble counts from upstream APIs (env: SCRAPE_INTERVAL)")
 
 	if err := viper.BindPFlags(rootCmd.Flags()); err != nil {
 		log.Fatalf("failed to bind flags: %v", err)
